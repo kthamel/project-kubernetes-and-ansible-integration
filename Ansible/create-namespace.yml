@@ -1,0 +1,15 @@
+---
+- name: create a pod
+  hosts: nodes
+  tasks:
+  - name: create namespace from ansible modules
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion:
+        kind: Namespace
+        metadata:
+          creationTimestamp: null
+          name: dev-ns
+        spec: {}
+        status: {}

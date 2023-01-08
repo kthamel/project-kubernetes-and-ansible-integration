@@ -1,0 +1,59 @@
+stages:
+  - docker_image_creation
+  - ansible_validation
+  - remove_ansible_playbooks
+  - background_check
+  - ansible_executions
+  - provision_infrastructure
+
+Create docker image:
+  stage: docker_image_creation
+  before_script:
+    - cd Docker/
+  script:
+    - docker build -t kthamel/ansible .
+    - docker push kthamel/ansible 
+  tags:
+    - shell-runner
+
+Check the ansible playbooks:
+  image:  kthamel/ansible
+  stage:  ansible_validation
+  before_script:
+    - cd Ansible/
+  script:
+    - ansible-lint -vv
+  tags:
+    - docker-runner
+
+Remove the ansible playbooks:
+  stage:  remove_ansible_playbooks
+  before_script:
+    - cd /opt/workspaces/
+  script:
+    - rm -rf *
+    - ls -l
+  tags:
+    - shell-runner
+
+Check ansible version:
+  stage: background_check
+  script:
+    - echo "printing the Ansible version"
+    - ansible --version
+  tags:
+    - shell-runner
+
+Execute the playbooks:
+  stage: ansible_executions
+  before_script:
+    - cd Bash/
+  script:
+    - bash ansible-execution.sh
+  tags:
+    - shell-runner
+
+Provision the AWS Infrastructure:
+  stage:  provision_infrastructure
+  trigger: 
+    project: kthamel/project-aws-and-terraform-integration

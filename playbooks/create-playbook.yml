@@ -1,0 +1,17 @@
+---
+- name: create a pod
+  hosts: nodes
+  tasks:
+  - name: create a pod from ansible modules
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          namespace: default
+          name: nginx-pod
+        spec:
+          containers:
+            - name: nginx-container
+              image: nginx
